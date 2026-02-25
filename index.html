@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krankengeldzuschuss-Assistent (TV TgDRV)</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+        <span class="icon-light">☀️</span>
+        <span class="icon-dark">🌙</span>
+    </button>
+    <div class="app-container">
+        <!-- Left Pane: Wizard Interface -->
+        <main class="wizard-pane">
+            <header class="wizard-header">
+                <div class="logo-area">
+                    <div class="logo-symbol">DRV</div>
+                    <h1>Krankengeldzuschuss-Assistent</h1>
+                </div>
+                <p class="subtitle">Tarifvertrag Tarifgemeinschaft Deutsche Rentenversicherung (TV TgDRV)</p>
+            </header>
+
+            <div class="question-container" id="question-container">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+
+            <footer class="wizard-footer">
+                <button id="btn-prev" class="btn btn-secondary" disabled>Zurück</button>
+                <button id="btn-next" class="btn btn-primary">Weiter</button>
+            </footer>
+        </main>
+
+        <!-- Right Pane: Progress Tracking -->
+        <aside class="progress-pane">
+            <h2>Berechnungsfortschritt</h2>
+            <div class="stepper-container">
+                <div class="stepper" id="stepper">
+                    <!-- Stepper items injected by JS -->
+                </div>
+            </div>
+
+            <div class="result-summary" id="result-summary" style="display: none;">
+                <h3>Zwischenergebnis</h3>
+                <div id="summary-content">
+                    <!-- Summary info injected here -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
