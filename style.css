@@ -665,3 +665,153 @@ body {
 [data-theme="dark"] .detail-row.highlight {
     background-color: rgba(59, 130, 246, 0.15);
 }
+
+/* Print Styles (Professional Report) */
+@media print {
+    @page {
+        margin: 2cm;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+        font-family: 'Inter', system-ui, sans-serif !important;
+    }
+
+    /* Hide everything by default */
+    .sidebar,
+    .theme-toggle,
+    .wizard-navigation,
+    .question-title,
+    .question-description,
+    .wizard-navigation-indicator,
+    #btn-print,
+    .info-card,
+    .stepper,
+    input,
+    radio,
+    label {
+        display: none !important;
+    }
+
+    /* Show only the container and its content */
+    .app-wrapper,
+    .main-container,
+    .wizard-pane {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+
+    /* Create the Report Header (Visible only in print) */
+    .print-report-header {
+        display: block !important;
+        border-bottom: 2px solid #073163;
+        margin-bottom: 2rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .print-report-header h1 {
+        font-size: 1.8rem;
+        color: #073163;
+        margin: 0;
+    }
+
+    .print-report-header .date {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    /* Summary Section in Print */
+    .result-summary {
+        display: block !important;
+        margin-bottom: 2rem !important;
+        border: 1px solid #eee !important;
+        padding: 1rem !important;
+        background: #fcfcfc !important;
+    }
+
+    .result-summary h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: #073163;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.5rem;
+    }
+
+    .summary-content {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem 2rem !important;
+    }
+
+    .summary-row {
+        border: none !important;
+        padding: 0.15rem 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+
+    .summary-label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    /* Result Card in Print */
+    .result-card {
+        display: block !important;
+        page-break-inside: avoid;
+        border: 2px solid #eee !important;
+        border-radius: 8px !important;
+        margin-top: 1rem !important;
+        box-shadow: none !important;
+    }
+
+    .result-header {
+        background: #073163 !important;
+        color: white !important;
+        padding: 0.75rem 1rem !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .result-body {
+        padding: 1.5rem !important;
+    }
+
+    .result-main-value .value {
+        color: #073163 !important;
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+    }
+
+    .detail-row.highlight {
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Footer */
+    .print-footer {
+        display: block !important;
+        margin-top: 3rem;
+        border-top: 1px solid #eee;
+        padding-top: 0.5rem;
+        font-size: 0.75rem;
+        color: #999;
+        text-align: center;
+    }
+}
+
+/* Hide print elements in browser view */
+.print-report-header,
+.print-footer {
+    display: none;
+}

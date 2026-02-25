@@ -214,10 +214,10 @@ const steps = [
             }
 
             const year = new Date(dateStr).getFullYear();
-            if (year < 1900) {
+            if (year < 1900 || year > 2100) {
                 input.classList.add('error');
                 const errorEl = document.getElementById('error-date');
-                errorEl.textContent = 'Bitte geben Sie ein gültiges Jahr (4-stellig) ein.';
+                errorEl.textContent = 'Bitte geben Sie ein gültiges 4-stelliges Jahr ein (z.B. 2024).';
                 errorEl.style.display = 'block';
                 return false;
             }
@@ -260,10 +260,10 @@ const steps = [
             }
 
             const year = new Date(dateStr).getFullYear();
-            if (year < 1900) {
+            if (year < 1900 || year > 2100) {
                 input.classList.add('error');
                 const errorEl = document.getElementById('error-ef');
-                errorEl.textContent = 'Bitte geben Sie ein gültiges Jahr (4-stellig) ein.';
+                errorEl.textContent = 'Bitte geben Sie ein gültiges 4-stelliges Jahr ein (z.B. 2024).';
                 errorEl.style.display = 'block';
                 return false;
             }
@@ -372,10 +372,10 @@ const steps = [
                 }
 
                 const year = new Date(date).getFullYear();
-                if (year < 1900) {
+                if (year < 1900 || year > 2100) {
                     dateInput.classList.add('error');
-                    // We don't have a specific error span here, but we can set a custom validity or alert
-                    // For consistency with other steps, let's just return false and let the UI handle it
+                    // Adding alert as fallback for this specific step which lacks a dedicated error span currently
+                    alert('Bitte geben Sie ein gültiges 4-stelliges Jahr ein (1900-2100).');
                     return false;
                 }
 
@@ -507,12 +507,17 @@ const steps = [
             }
 
             // 3. Monetary Calculation (REVISED FOR USER REQUIREMENTS)
+            // Neufall: Subtract Gross Benefit (* 30)
+            // Altfall: Subtract Net Benefit (* 30)
             const dailyNetIst = state.data.daily_net_benefit || 0;
-            const monthlyNetBenefit = dailyNetIst * 30;
+            const dailyGrossIst = state.data.daily_gross_benefit || 0;
+
+            const benefitBase = istAltfall ? dailyNetIst : dailyGrossIst;
+            const monthlyBenefit = benefitBase * 30;
             const monthlyNetUrlaub = state.data.netto_urlaubsverguetung || 0;
 
             // Teilergebnis 1
-            const teilergebnis1 = Math.max(0, monthlyNetUrlaub - monthlyNetBenefit);
+            const teilergebnis1 = Math.max(0, monthlyNetUrlaub - monthlyBenefit);
 
             // 4. VL Contribution
             let vlGrant = 0;
@@ -557,8 +562,8 @@ const steps = [
                                 <strong>${monthlyNetUrlaub.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</strong>
                             </div>
                             <div class="detail-row">
-                                <span>Abzüglich Netto-Krg. (x 30):</span>
-                                <strong>- ${monthlyNetBenefit.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</strong>
+                                <span>Abzüglich ${istAltfall ? 'Netto' : 'Brutto'}-Krg. (x 30):</span>
+                                <strong>- ${monthlyBenefit.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</strong>
                             </div>
                             <div class="detail-row highlight" style="margin-bottom: 1.5rem;">
                                 <span>Teilergebnis 1:</span>
@@ -598,7 +603,55 @@ const steps = [
                 `;
             }
 
-            container.innerHTML = html;
+            // 7. Add Print Report Header & Summary for Printing
+            const today = new Date().toLocaleDateString('de-DE');
+
+            // Re-use summary logic to get a clean printable list of inputs
+            let inputsHtml = '';
+            if (state.data.beschaeftigungsbeginn) {
+                inputsHtml += `
+                    <div class="summary-row"><span class="summary-label">Eintrittsdatum:</span> <span>${new Date(state.data.beschaeftigungsbeginn).toLocaleDateString('de-DE')}</span></div>
+                    <div class="summary-row"><span class="summary-label">Ende Entgeltfortzahlung:</span> <span>${new Date(state.data.letzter_tag_ef).toLocaleDateString('de-DE')}</span></div>
+                    <div class="summary-row"><span class="summary-label">Beschäftigungszeit:</span> <span>${diffYears} J., ${diffMonths} M.</span></div>
+                    <div class="summary-row"><span class="summary-label">Einstufung:</span> <span>${istAltfall ? 'Altfall (§ 71 BAT)' : 'Neufall (§ 22 TV TgDRV)'}</span></div>
+                    <div class="summary-row"><span class="summary-label">Netto-Urlaubsentgelt:</span> <span>${monthlyNetUrlaub.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span></div>
+                    <div class="summary-row"><span class="summary-label">Krg.-Satz (Brutto/Netto):</span> <span>${(state.data.daily_gross_benefit || 0).toFixed(2)}€ / ${(state.data.daily_net_benefit || 0).toFixed(2)}€</span></div>
+                `;
+            }
+
+            let reportHtml = `
+                <div class="print-report-header">
+                    <h1>Berechnungsprotokoll: Krankengeldzuschuss</h1>
+                    <div class="date">Erstellt am ${today}</div>
+                </div>
+
+                <div class="result-summary">
+                    <h3>Erfasste Basisdaten</h3>
+                    <div class="summary-content">
+                        ${inputsHtml}
+                    </div>
+                </div>
+
+                ${html}
+
+                <div class="print-footer">
+                    Dieses Dokument dient der Information und wurde automatisiert erstellt. 
+                    Grundlage: TV TgDRV / § 71 BAT (Übergangsrecht).
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <button id="btn-print" class="btn btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
+                        Ergebnisbericht drucken
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.reload()">Neu starten</button>
+                </div>
+            `;
+
+            container.innerHTML = reportHtml;
+
+            // Attach print event
+            document.getElementById('btn-print').onclick = () => window.print();
         },
         validate: () => true
     }
@@ -870,8 +923,21 @@ function updateSummary() {
                 months--;
             }
 
+            // Altfall/Neufall status
+            let istAltfall = false;
+            if (state.data.beschaeftigungsart === 'angestellter') {
+                const cutOffDate = new Date('1994-06-01');
+                if (start < cutOffDate) istAltfall = true;
+            }
+
             html += `
                 <div class="summary-row" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-color);">
+                    <span class="summary-label">Einstufung:</span>
+                    <span class="summary-value" style="font-weight: 600; color: var(--primary-color);">
+                        ${istAltfall ? 'Altfall (§ 71 BAT)' : 'Neufall (§ 22 TV TgDRV)'}
+                    </span>
+                </div>
+                <div class="summary-row">
                     <span class="summary-label">Beschäftigungszeit:</span>
                     <span class="summary-value">${years} J., ${months < 0 ? 0 : months} M.</span>
                 </div>
